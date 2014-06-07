@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <title>x-storage-parse</title>
+
+    <!-- Importing Polyfill -->
+    <script src="bower_components/platform/platform.js"></script>
+
+    <!-- Importing Custom Elemenent -->
+    <link rel="import" href="src/element.html">
+  </head>
+  <body>
+
+    <!-- Using Custom Element -->
+    <x-storage-parse appid="Jex2pgGOUnZQHiSJOvbqUDoKO0qmJO948Rtcu4oy" 
+                     classname="item" 
+                     restapikey="tI5To9viL2ygoURZFN7uTnh439XXqkSRk0xFRfLH"
+                     key="k">
+    </x-storage-parse>
+    <script>
+      var xsp = document.querySelector('x-storage-parse');
+    </script>
+
+  </body>
+</html>

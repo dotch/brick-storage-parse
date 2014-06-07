@@ -1,0 +1,13 @@
+{
+  "camelcase": true,
+  "curly": true,
+  "immed": true,
+  "newcap": true,
+  "undef": true,
+  "browser": true,
+  "trailing": true,
+  "indent": 2,
+  "globals": {
+    "Promise": true
+  }
+}
