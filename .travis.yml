@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+- 0.1
+addons:
+  firefox: '29.0'
+before_script:
+- export DISPLAY=:99.0
+- sh -e /etc/init.d/xvfb start
+- npm install -g gulp bower
+- bower install
+env:
+  global:
+  - secure: SZto9vPJZowr9EQ0J2BdqxfPzT4ktBVd4k9ACGtY78+XBVce9+bfIEJPnxDmjoIS3B4unQJ1D1RFGKv/TWtR5GgVXRwuqSObOhmBeTlp/wpomtgd4ghtyiaTLqt//v/gY+LpddYRPvlPHjsEtu5Onzvbq6m9l0HWNwVOoczilY0=
+  - secure: jEhPre4NoHcozVDKenYiHc29Ixr1TOaYEhD9Bw03iD9wlioIaxQJfPTzIJpekGaSs47nYqhGiCQi+okweuvy1Nkz1nijm5ZGlF+xFQIV1NVhnzKJszjwnqFGwgasJ8fseYydxw0dhkwtqq+sumKOVoWyHjPZrISbbt/mSEiWsNk=

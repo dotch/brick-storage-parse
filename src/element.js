@@ -19,8 +19,16 @@
     self.appId = appId;
     self.className = className;
     self.apiKey = apiKey;
-    self.key = key;
     self.url = APIURL + "classes/" + className + "/";
+    self.batchUrl = APIURL + "batch";
+    self.batchPath = "/1/classes/" + self.className + "/";
+    if (key) {
+      self.key = key;
+      self.useParseIds = false;
+    } else {
+      self.key = "objectId";
+      self.useParseIds = true;
+    }
 
   }
 
@@ -36,7 +44,7 @@
       var data = options.data ? JSON.stringify(options.data) : undefined;
       return new Promise(function(resolve, reject) {
         var xhr = new XMLHttpRequest();
-        xhr.open(method, self.url + id + params);
+        xhr.open(method, url + id + params);
         xhr.setRequestHeader("X-Parse-Application-Id", self.appId);
         xhr.setRequestHeader("X-Parse-REST-API-Key", self.apiKey);
         xhr.setRequestHeader("Content-Type", "application/json");
@@ -65,11 +73,14 @@
       });
     },
     _stripObjects: function(objects) {
+      var self = this;
       var strippedObjects = [];
       for (var i = 0; i < objects.length; i++) {
         var obj = objects[i];
         delete(obj.createdAt);
-        delete(obj.objectId);
+        if (!self.useParseIds) {
+          delete(obj.objectId);
+        }
         delete(obj.updatedAt);
         strippedObjects.push(obj);
       }
@@ -79,35 +90,39 @@
     /**
      * Save an object into the database
      * @param  {object}    object   the object to be saved
-     * @return {promise}   Promise for the id/key to which 
+     * @return {promise}   Promise for the id/key to which
      *                     it was saved
      */
-    save: function (object) {
+    insert: function (object) {
       var self = this;
-      if (self.key) {
-        // check if an item with the objects key already exists
+      if (!self.useParseIds) {
+        // check if the object has a key.
+        if (!object[self.key]) {
+          return Promise.reject("The object has to have a key.");
+        }
+        // check if an item with the objects key already exists.
         return self._getIdForKey(object[self.key])
           .then(function(objId){
             if (objId) {
-              return Promise.reject(Error("Contsraint Error"));
+              return Promise.reject(Error("Constraint Error"));
             } else {
-              return self._save(object);            
+              return self._insert(object);
             }
           });
       } else {
-        return self._save(object);
+        return self._insert(object);
       }
     },
-    _save: function(object) {
+    _insert: function(object) {
       var self = this;
       return self._ajax({
         'method':'POST',
         'data':object
       }).then(function(result){
-        if (self.key) {
-          return object[self.key];
-        } else {
+        if (self.useParseIds) {
           return result.objectId;
+        } else {
+          return object[self.key];
         }
       });
     },
@@ -116,10 +131,10 @@
      * Update or insert an Object at the given id/key.
      * @param {number}               id
      * @param {string|number|object} object
-     * @return {promise}             Promise for the id/key of 
+     * @return {promise}             Promise for the id/key of
      *                               the created object
      */
-    set: function (key, object) {
+    set: function (object) {
       var self = this;
       if (self.key) {
         // get the objectid
@@ -130,7 +145,7 @@
               return self._update(objId, object);
             } else {
               // object does not exist, just save it.
-              return self._save(object);
+              return self._insert(object);
             }
           });
       } else {
@@ -145,11 +160,10 @@
         'id': objId,
         'data': object
       }).then(function(result){
-        console.log("update",result);
         if (self.key) {
           return object[self.key];
         } else {
-          return objId;
+          return result.objectId;
         }
       });
     },
@@ -162,21 +176,12 @@
     get: function (objKey) {
       var self = this;
       var params = {};
-      var id;
-      if (self.key) { 
-        params.where = '{"' + self.key + '":"' + objKey + '"}';
-        return self._ajax({
-          'params':params
-        }).then(function(res){
-         return self._stripObjects(res.results)[0];
-        });
-      } else {
-        return self._ajax({
-          'id':objKey
-        }).then(function(res){
-         return self._stripObjects([res])[0];
-        });
-      }
+      params.where = '{"' + self.key + '":"' + objKey + '"}';
+      return self._ajax({
+        'params':params
+      }).then(function(res){
+        return self._stripObjects(res.results)[0];
+      });
     },
 
     /**
@@ -186,9 +191,13 @@
      */
     remove: function (key) {
       var self = this;
-      return self._getIdForKey(key).then(function(objId){
-        return self._remove(objId);
-      });
+      if (self.useParseIds) {
+        return self._remove(key);
+      } else {
+        return self._getIdForKey(key).then(function(objId){
+          return self._remove(objId);
+        });
+      }
     },
     _remove: function (objId) {
       var self = this;
@@ -201,20 +210,8 @@
     },
 
     /**
-     * Returns all databse entries.
-     * @param  {options} 
-     *   {string}  orderby    The key by which the results will be ordered.
-     *   {boolean} reverse    Reverse the order of the results.
-     * @return {promise}      Promise for the objects
-     */
-    getAll: function(options) {
-      var self = this;
-      return self.getMany(options);
-    },
-
-    /**
      * Returns multiple database entries.
-     * @param  {options} 
+     * @param  {options}
      *   {any}     stt        The first id of the results.
      *   {any}     end        The last id of the results.
      *   {number}  count      The number of results.
@@ -234,18 +231,15 @@
       var count = options.count || undefined;
       var offset = options.offset || undefined;
       var reverse = options.reverse || false;
-      var orderby = options.orderby;
+      var orderby = options.orderby ? options.orderby : self.key || "objectId";
       var params = {};
-      if (self.key) { params.order = self.key; } else {
-        params.order = 'createdAt';
-      }
       if (count) { params.limit = count; }
       if (offset) { params.skip = offset; }
       if (orderby) { params.order = orderby; }
-      if (start) { params.where = '{"'+self.key+'":{"$gte":"'+start+'"}}'; }
-      if (end) { params.where = '{"'+self.key+'":{"$lte":"'+end+'"}}'; }
-      if (start && end) { 
-        params.where = '{"'+self.key+'":{"$gte":"'+start+'","$lte":"'+end+'"}}'; 
+      if (start) { params.where = '{"'+ orderby +'":{"$gte":"'+start+'"}}'; }
+      if (end) { params.where = '{"'+ orderby +'":{"$lte":"'+end+'"}}'; }
+      if (start && end) {
+        params.where = '{"'+ orderby +'":{"$gte":"'+start+'","$lte":"'+end+'"}}';
       }
       if (reverse) { params.order = "-" + params.order; }
       return self._ajax({
@@ -273,28 +267,29 @@
       });
     },
 
-    // use bulk api in the future
     /**
      * Deletes all database entries.
      * @return {promise} Promise for undefined.
      */
     clear: function () {
       var self = this;
-      var params = self.key ? {order: self.key} : undefined;
-      return self._ajax({
-          'params': params
-        })
+      return self._ajax()
         .then(function(result){
           return result.results;
         })
         .then(function(allItems){
-          var promises = [];
+          var requests = [];
           for (var i = 0; i < allItems.length; i++) {
             var item = allItems[i];
-            promises.push(self._remove(item.objectId));
+            var request = {};
+            request.method = "DELETE";
+            request.path = self.batchPath + item.objectId;
+            requests.push(request);
           }
-          return Promise.all(promises).then(function(){
-            return null;
+          return self._ajax({
+            "method": 'POST',
+            "url": self.batchUrl,
+            "data": {"requests":requests}
           });
         });
     }
@@ -303,7 +298,7 @@
 
 var StoragePrototype = Object.create(HTMLElement.prototype);
 
-  StoragePrototype.createdCallback = function () {
+  StoragePrototype.attachedCallback = function () {
     this.apiKey = this.getAttribute('restapikey');
     this.className = this.getAttribute('classname');
     this.appId = this.getAttribute('appid');
@@ -311,23 +306,17 @@ var StoragePrototype = Object.create(HTMLElement.prototype);
     this.storage = new ParseStore(this.appId, this.apiKey, this.className, this.key);
   };
 
-  StoragePrototype.save = function (object) {
-    return this.storage.save(object);
+  StoragePrototype.insert = function (object) {
+    return this.storage.insert(object);
   };
   StoragePrototype.set = function (key, object) {
     return this.storage.set(key, object);
-  };
-  StoragePrototype.update = function (key, object) {
-    return this.storage.update(key, object);
   };
   StoragePrototype.get = function (key) {
     return this.storage.get(key);
   };
   StoragePrototype.remove = function (key) {
     return this.storage.remove(key);
-  };
-  StoragePrototype.getAll = function (options) {
-    return this.storage.getAll(options);
   };
   StoragePrototype.getMany = function (options) {
     return this.storage.getMany(options);

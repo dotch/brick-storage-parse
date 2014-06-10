@@ -9,5 +9,7 @@
   "indent": 2,
   "globals": {
     "Promise": true
-  }
+  },
+  "undef": true,
+  "unused": true
 }
