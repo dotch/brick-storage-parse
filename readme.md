@@ -28,22 +28,27 @@
 
 Attribute     | Options     | Default      | Description
 ---           | ---         | ---          | ---
-`name`        | *string*    | `storage`    | The database name.
-`index`       | *string*    | `storage`    | The database name.
+`appid`       | *string*    |              | Parse app id.
+`restapikey`  | *string*    |              | Parse rest api key.
+`classname`   | *string*    |              | Parse class name.
+`key`         | *string*    | objectId     | The unique key for all objects.
 
+
+appid="Jex2pgGOUnZQHiSJOvbqUDoKO0qmJO948Rtcu4oy"
+                     classname="item"
+                     restapikey="tI5To9viL2ygoURZFN7uTnh439XXqkSRk0xFRfLH"
+                     key="k">
 ## Methods
 
-Method        | Parameters   | Returns     | Description
----           | ---          | ---         | ---
-`save()`      | None.        | Nothing.    | Save an object.
-`set()`       | None.        | Nothing.    | A method.
-`update()`    | None.        | Nothing.    | A method.
-`get()`       | None.        | Nothing.    | A method.
-`remove()`    | None.        | Nothing.    | A method.
-`getAll()`    | None.        | Nothing.    | A method.
-`getMany()`   | None.        | Nothing.    | A method.
-`size()`      | None.        | Nothing.    | A method.
-`clear()`     | None.        | Nothing.    | A method.
+Method            | Returns a promise for  | Description
+---               | ---                    | ---
+`insert(object)`  | key of the saved object| Insert an object.
+`set(object)`     | key of the saved object| Insert/upate an object.
+`get(key)`        | object                 | Retrieves the object with the key.
+`remove(key)`     | undefined              | Deletes the object with the key.
+`getMany(options)`| array multiple objects | Retrieves multiple stored objects. If no filtering options are provided, it returns all objects.<ul><li>`options.start` - The first key of the results.</li><li>`options.end` - The last key of the results.</li><li>`options.count` - The number of results.</li><li>`options.offset` - The offset of the first result when set to true.</li><li>`options.orderby` - The key/index by which the results will be ordered. `options.start` and `options.end` use this key/index</li><li>`options.reverse` - Reverse the order of the results.</li></ul>
+`size()`          | number of stored items | Returns the number of stored objects.
+`clear()`         | undefined              | Deletes all database entries.
 
 ## Events
 
