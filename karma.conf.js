@@ -1,6 +1,3 @@
-console.log(
-  process.env);
-
 var fs = require("fs");
 fs.writeFileSync("env.js","var env=" + JSON.stringify(process.env));
 
