@@ -38,12 +38,8 @@ window.addEventListener('WebComponentsReady', function(e) {
   });
 });
 
-function randomString() {
-  return Math.random().toString(36).substr(2);
-}
-
 function randomContent() {
-  return randomString();
+  return Math.random().toString(36).substr(2);
 }
 
 function generateSampleItems(n) {
@@ -299,6 +295,25 @@ describe("the key value store with key", function(){
           return kvk.insert(newItem);
         })
     ).to.be.rejected;
+  });
+
+  it("should insert(obj) an item, remove(key) it and not get(key) it again", function(){
+    var newItem = generateSampleItems(1)[0];
+    var newItemKey;
+    return expect(
+      kvk.insert(newItem)
+        .then(function(id){
+          newItemKey = id;
+          return kvk.get(newItemKey);
+        })
+        .then(function(item){
+          expect(item).to.deep.equal(newItem);
+          return kvk.remove(newItemKey);
+        })
+        .then(function(id){
+          return kvk.get(newItemKey);
+        })
+    ).to.eventually.deep.equal(undefined);
   });
 
   it("should be empty again after clear()", function(){

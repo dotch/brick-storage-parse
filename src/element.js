@@ -61,17 +61,6 @@
         xhr.send(data);
       });
     },
-    _getIdForKey: function(objKey) {
-      var self = this;
-      var params = {
-        where: '{"' + self.key + '":"' + objKey + '"}'
-      };
-      return self._ajax({
-        'params':params
-      }).then(function(res){
-        return res.results.length > 0 ? res.results[0].objectId : undefined;
-      });
-    },
     _stripObjects: function(objects) {
       var self = this;
       var strippedObjects = [];
@@ -85,6 +74,17 @@
         strippedObjects.push(obj);
       }
       return strippedObjects;
+    },
+    _checkForObject: function(key) {
+      var self = this;
+      var params = {
+        where: '{"' + self.key + '":"' + key + '"}'
+      };
+      return self._ajax({
+        'params':params
+      }).then(function(res){
+        return res.results.length > 0 ? res.results[0].objectId : undefined;
+      });
     },
 
     /**
@@ -101,9 +101,9 @@
           return Promise.reject("The object has to have a key.");
         }
         // check if an item with the objects key already exists.
-        return self._getIdForKey(object[self.key])
-          .then(function(objId){
-            if (objId) {
+        return self._checkForObject(object[self.key])
+          .then(function(id){
+            if (id) {
               return Promise.reject(Error("Constraint Error"));
             } else {
               return self._insert(object);
@@ -136,28 +136,26 @@
      */
     set: function (object) {
       var self = this;
-      if (self.key) {
-        // get the objectid
-        return self._getIdForKey(object[self.key])
-          .then(function(objId){
-            if (objId) {
-              // object exists so update.
-              return self._update(objId, object);
-            } else {
-              // object does not exist, just save it.
-              return self._insert(object);
-            }
-          });
-      } else {
-
-      }
+      // get the objectid
+      return self._checkForObject(object[self.key])
+        .then(function(objectId){
+          if (objectId) {
+            // object exists so update.
+            return self._update(objectId,object);
+          } else {
+            // object does not exist, just save it.
+            return self._insert(object);
+          }
+        });
     },
 
-    _update: function (objId,object) {
+
+    // Needs to be changed to not do partial updates
+    _update: function (objectId, object) {
       var self = this;
       return self._ajax({
         'method':'PUT',
-        'id': objId,
+        'id': objectId,
         'data': object
       }).then(function(result){
         if (self.key) {
@@ -194,7 +192,7 @@
       if (self.useParseIds) {
         return self._remove(key);
       } else {
-        return self._getIdForKey(key).then(function(objId){
+        return self._checkForObject(key).then(function(objId){
           return self._remove(objId);
         });
       }
