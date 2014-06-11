@@ -61,6 +61,9 @@
         xhr.send(data);
       });
     },
+
+    // remove the attributes parse adds to each object.
+    // keep the objectId in case we are using it.
     _stripObjects: function(objects) {
       var self = this;
       var strippedObjects = [];
@@ -75,17 +78,6 @@
       }
       return strippedObjects;
     },
-    _checkForObject: function(key) {
-      var self = this;
-      var params = {
-        where: '{"' + self.key + '":"' + key + '"}'
-      };
-      return self._ajax({
-        'params':params
-      }).then(function(res){
-        return res.results.length > 0 ? res.results[0].objectId : undefined;
-      });
-    },
 
     /**
      * Save an object into the database
@@ -95,15 +87,19 @@
      */
     insert: function (object) {
       var self = this;
+      // if we dont use Parses ObjectIds we need to check if
+      // a duplicate item (same self.key) already exists
+      // else we can just insert the item and parse will do the
+      // id based check
       if (!self.useParseIds) {
         // check if the object has a key.
         if (!object[self.key]) {
           return Promise.reject("The object has to have a key.");
         }
         // check if an item with the objects key already exists.
-        return self._checkForObject(object[self.key])
-          .then(function(id){
-            if (id) {
+        return self._get(object[self.key])
+          .then(function(oldObj){
+            if (oldObj) {
               return Promise.reject(Error("Constraint Error"));
             } else {
               return self._insert(object);
@@ -134,32 +130,30 @@
      * @return {promise}             Promise for the id/key of
      *                               the created object
      */
-    set: function (object) {
+    set: function (newObject) {
       var self = this;
-      // get the objectid
-      return self._checkForObject(object[self.key])
-        .then(function(objectId){
-          if (objectId) {
+      // gcheck if item exists
+      return self._get(newObject[self.key])
+        .then(function(oldObject){
+          if (oldObject) {
             // object exists so update.
-            return self._update(objectId,object);
+            return self._update(oldObject,newObject);
           } else {
-            // object does not exist, just save it.
-            return self._insert(object);
+            // object does not exist, just insert it.
+            return self._insert(newObject);
           }
         });
     },
-
-
     // Needs to be changed to not do partial updates
-    _update: function (objectId, object) {
+    _update: function (oldObject, newObject) {
       var self = this;
       return self._ajax({
         'method':'PUT',
-        'id': objectId,
-        'data': object
+        'id': oldObject.objectId,
+        'data': newObject
       }).then(function(result){
         if (self.key) {
-          return object[self.key];
+          return newObject[self.key];
         } else {
           return result.objectId;
         }
@@ -173,12 +167,27 @@
      */
     get: function (objKey) {
       var self = this;
+      return self._get(objKey).then(function(res){
+        if (res) {
+          return self._stripObjects([res])[0];
+        } else {
+          return;
+        }
+      });
+    },
+    // get object without stripping properties
+    _get: function (objKey) {
+      var self = this;
       var params = {};
       params.where = '{"' + self.key + '":"' + objKey + '"}';
       return self._ajax({
         'params':params
-      }).then(function(res){
-        return self._stripObjects(res.results)[0];
+      }).then(function (res) {
+        if (res.results.length > 0) {
+          return res.results[0];
+        } else {
+          return undefined;
+        }
       });
     },
 
@@ -192,11 +201,12 @@
       if (self.useParseIds) {
         return self._remove(key);
       } else {
-        return self._checkForObject(key).then(function(objId){
-          return self._remove(objId);
+        return self._get(key).then(function(obj){
+          return self._remove(obj.objectId);
         });
       }
     },
+    // delete based on objectId
     _remove: function (objId) {
       var self = this;
       return self._ajax({
