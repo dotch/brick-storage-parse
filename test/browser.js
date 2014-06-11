@@ -13,7 +13,6 @@ var indexAttribute = "v";
 var timeout = 10000;
 var n = 16;
 var sampleItems = [];
-var sampleItemsWithId = [];
 var fallbackKey = "objectId";
 
 var restApikKey = env.PARSE_API_KEY;
@@ -76,18 +75,11 @@ function sortArray(array, property){
 }
 
 function populateDb(database){
-  var array = sampleItems.slice(0);
-  return database.clear()
-    .then(function() {
-      return array.reduce(function (prev, cur, i) {
-        return prev.then(function() {
-          return database.insert(cur);
-        });
-      }, Promise.resolve());
-    })
-    .then(function(){
-      return Promise.resolve();
-    });
+  var promises = [];
+  for (var i = 0; i < sampleItems.length; i++) {
+    promises.push(database.insert(sampleItems[i]));
+  }
+  return Promise.all(promises);
 }
 
 function populateDbAndGetIds(database){

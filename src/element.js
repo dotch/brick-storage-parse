@@ -34,6 +34,8 @@
 
   ParseStore.prototype = {
 
+    // todo: avoid preflight by putting parse
+    // credentials inside data object
     _ajax: function(options) {
       var self = this;
       options = options || {};
@@ -47,10 +49,10 @@
         xhr.open(method, url + id + params);
         xhr.setRequestHeader("X-Parse-Application-Id", self.appId);
         xhr.setRequestHeader("X-Parse-REST-API-Key", self.apiKey);
-        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Content-Type", "text/plain");  // avoid pre-flight.
         xhr.onload = function() {
-          if (xhr.status == 200 || xhr.status == 201) {
-            resolve(JSON.parse(xhr.response));
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(JSON.parse(xhr.responseText));
           } else {
             reject(Error(xhr.statusText));
           }
