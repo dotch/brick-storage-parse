@@ -147,6 +147,14 @@
     // Needs to be changed to not do partial updates
     _update: function (oldObject, newObject) {
       var self = this;
+      // get diff
+      var diff = Object.keys(oldObject).filter(function(x) {
+       return Object.keys(newObject).indexOf(x) < 0 &&
+              ["createdAt","updatedAt","objectId"].indexOf(x) < 0;
+      });
+      for (var i = 0; i < diff.length; i++) {
+        newObject[diff[i]] = '{"__op":"Delete"}';
+      }
       return self._ajax({
         'method':'PUT',
         'id': oldObject.objectId,
