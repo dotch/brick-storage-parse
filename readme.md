@@ -1,5 +1,7 @@
 # x-storage-parse
 
+[![Build Status](https://travis-ci.org/dotch/x-storage-indexeddb.png)](https://travis-ci.org/dotch/x-storage-indexeddb)
+
 ## Demo
 
 [Check it live!](http://dotch.github.io/x-storage-parse)
