@@ -151,7 +151,7 @@
       var self = this;
       // get diff
       var diff = Object.keys(oldObject).filter(function(x) {
-       return Object.keys(newObject).indexOf(x) < 0 &&
+        return Object.keys(newObject).indexOf(x) < 0 &&
               ["createdAt","updatedAt","objectId"].indexOf(x) < 0;
       });
       for (var i = 0; i < diff.length; i++) {
