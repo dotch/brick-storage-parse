@@ -1,10 +1,8 @@
-# brick-storage-parse
-
-> A [Brick](https://github.com/mozbrick/brick/) custom element starter-kit.
+# x-storage-parse
 
 ## Demo
 
-[Check it live!](http://mozbrick.github.io/brick-storage-parse)
+[Check it live!](http://dotch.github.io/brick-storage-parse)
 
 ## Usage
 
@@ -23,54 +21,69 @@
 3. Start using it:
 
     ```html
-    <brick-storage-parse></brick-storage-parse>
+    <brick-storage-indexeddb></brick-storage-indexeddb>
     ```
 
 ## Options
 
 Attribute     | Options     | Default      | Description
 ---           | ---         | ---          | ---
-`foo`         | *string*    | `bar`        | An Attribute.
+`appid`       | *string*    |              | Parse app id.
+`restapikey`  | *string*    |              | Parse rest api key.
+`classname`   | *string*    |              | Parse class name.
+`keyname`     | *string*    | objectId     | The unique key for all objects.
 
+
+appid="Jex2pgGOUnZQHiSJOvbqUDoKO0qmJO948Rtcu4oy"
+                     classname="item"
+                     restapikey="tI5To9viL2ygoURZFN7uTnh439XXqkSRk0xFRfLH"
+                     key="k">
 ## Methods
 
-Method        | Parameters   | Returns     | Description
----           | ---          | ---         | ---
-`method()`    | None.        | Nothing.    | A method.
-
-## Events
-
-Event         | Description
----           | ---
-`onsomething` | Triggers when something happens.
+Method            | Returns a promise for  | Description
+---               | ---                    | ---
+`insert(object)`  | key of the saved object| Insert an object.
+`set(object)`     | key of the saved object| Insert/upate an object.
+`get(key)`        | object                 | Retrieves the object with the key.
+`remove(key)`     | undefined              | Deletes the object with the key.
+`getMany(options)`| array multiple objects | Retrieves multiple stored objects. If no filtering options are provided, it returns all objects.<ul><li>`options.start` - The first key of the results.</li><li>`options.end` - The last key of the results.</li><li>`options.count` - The number of results.</li><li>`options.offset` - The offset of the first result when set to true.</li><li>`options.orderby` - The key/index by which the results will be ordered. `options.start` and `options.end` use this key/index</li><li>`options.reverse` - Reverse the order of the results.</li></ul>
+`size()`          | number of stored items | Returns the number of stored objects.
+`clear()`         | undefined              | Deletes all database entries.
 
 ## Development
 
-Brick components use [Stylus](http://learnboost.github.com/stylus/) to generate their CSS.
-
-This repository comes outfitted with a set of tools to ease the development process.
-
-To get started:
+In order to run it locally you'll need to fetch some dependencies and a basic server setup.
 
 * Install [Bower](http://bower.io/) & [Gulp](http://gulpjs.com/):
 
     ```sh
-    $ npm install -g bower gulp
+    $ [sudo] npm install -g bower gulp
     ```
 
 * Install local dependencies:
 
     ```sh
-    $ npm install && bower install
+    $ bower install && npm install
     ```
 
-While developing your component, there is a development server that will watch your files for changes and automatically re-build your styles and re-lint your code.
+* To test your project, start the development server and open `http://localhost:3001`.
 
-To run the development server:
+    ```sh
+    $ gulp server
+    ```
 
-* Run `gulp server`
-* Navigate to `http://localhost:3001`
+* To build your css and lint your scripts.
 
-To simply build and lint your code, run `gulp build`.
+    ```sh
+    $ gulp build
+    ```
 
-You can also push your code to GitHub Pages by running `gulp deploy`.
+* To provide a live demo, send everything to `gh-pages` branch.
+
+    ```sh
+    $ gulp deploy
+    ```
+
+## License
+
+[MIT License](http://opensource.org/licenses/MIT)
