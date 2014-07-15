@@ -313,41 +313,6 @@
     }
   };
 
-
-var StoragePrototype = Object.create(HTMLElement.prototype);
-
-  StoragePrototype.attachedCallback = function () {
-    this.apiKey = this.getAttribute('restapikey');
-    this.className = this.getAttribute('classname');
-    this.appId = this.getAttribute('appid');
-    this.key = this.getAttribute('key');
-    this.storage = new ParseStore(this.appId, this.apiKey, this.className, this.key);
-  };
-
-  StoragePrototype.insert = function (object) {
-    return this.storage.insert(object);
-  };
-  StoragePrototype.set = function (key, object) {
-    return this.storage.set(key, object);
-  };
-  StoragePrototype.get = function (key) {
-    return this.storage.get(key);
-  };
-  StoragePrototype.remove = function (key) {
-    return this.storage.remove(key);
-  };
-  StoragePrototype.getMany = function (options) {
-    return this.storage.getMany(options);
-  };
-  StoragePrototype.size = function () {
-    return this.storage.size();
-  };
-  StoragePrototype.clear = function () {
-    return this.storage.clear();
-  };
-
-  document.registerElement('x-storage-parse', {
-    prototype: StoragePrototype
-  });
+  window.ParseStore = ParseStore;
 
 })();

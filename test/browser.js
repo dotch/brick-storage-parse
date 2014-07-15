@@ -20,17 +20,17 @@ var appId = env.PARSE_APP_ID;
 var className = 'item';
 
 window.addEventListener('WebComponentsReady', function(e) {
-  document.head.innerHTML += '<link rel="import" id="el" href="/base/src/element.html">';
+  document.head.innerHTML += '<link rel="import" id="el" href="/base/src/brick-storage-parse.html">';
   document.querySelector('#el').addEventListener('load', function() {
-    window.kv = document.createElement('x-storage-parse');
+    window.kv = document.createElement('brick-storage-parse');
     kv.setAttribute('appid', appId);
     kv.setAttribute('classname', className);
     kv.setAttribute('restapikey', restApikKey);
-    window.kvk = document.createElement('x-storage-parse');
+    window.kvk = document.createElement('brick-storage-parse');
     kvk.setAttribute('appid', appId);
     kvk.setAttribute('classname', className);
     kvk.setAttribute('restapikey', restApikKey);
-    kvk.setAttribute('key', keyAttribute);
+    kvk.setAttribute('keyname', keyAttribute);
     document.body.appendChild(kvk);
     document.body.appendChild(kv);
     ready();

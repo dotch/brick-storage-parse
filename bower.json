@@ -1,12 +1,12 @@
 {
-  "name": "x-storage-parse",
-  "version": "0.0.1",
-  "homepage": "https://github.com/dotch/x-storage-parse",
+  "name": "brick-storage-parse",
+  "version": "0.0.0",
+  "homepage": "https://github.com/mozbrick/brick-storage-parse",
   "authors": [
-    "Christian Weiss <christian.x.weiss@gmail.com>"
+    "mozilla"
   ],
-  "description": "Web component indexdb storage",
-  "main": "src/element.html",
+  "description": "A component wrapping the parse rest api in a brick-storage api compatible custom element",
+  "main": "src/brick-storage-parse.html",
   "keywords": [
     "brick",
     "webcomponents"
@@ -22,7 +22,5 @@
   "dependencies": {
     "brick-common": "*",
     "platform": "Polymer/platform"
-  },
-  "devDependencies": {
   }
 }

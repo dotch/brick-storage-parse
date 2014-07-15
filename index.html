@@ -3,24 +3,25 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
-    <title>x-storage-parse</title>
+    <title>brick-storage-parse</title>
 
     <!-- Importing Polyfill -->
     <script src="bower_components/platform/platform.js"></script>
 
     <!-- Importing Custom Elemenent -->
-    <link rel="import" href="src/element.html">
+    <link rel="import" href="src/brick-storage-parse.html">
   </head>
   <body>
 
     <!-- Using Custom Element -->
-    <x-storage-parse appid="Jex2pgGOUnZQHiSJOvbqUDoKO0qmJO948Rtcu4oy" 
-                     classname="item" 
-                     restapikey="tI5To9viL2ygoURZFN7uTnh439XXqkSRk0xFRfLH"
-                     key="k">
-    </x-storage-parse>
+    <brick-storage-parse appid="APPID"
+                     classname="item"
+                    restapikey="RESTAPIKEY"
+                       keyname="k">
+    </brick-storage-parse>
+
     <script>
-      var xsp = document.querySelector('x-storage-parse');
+      var bsp = document.querySelector('brick-storage-parse');
     </script>
 
   </body>
