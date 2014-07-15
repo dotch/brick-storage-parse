@@ -1,5 +1,12 @@
 (function () {
 
+  function NetworkError(message){
+    this.name = "NetworkError";
+    this.message = message || "Network Error";
+  }
+  NetworkError.prototype = new Error();
+  NetworkError.prototype.constructor = NetworkError;
+
   var APIURL = "https://api.parse.com/1/";
 
   function serializeObject(obj) {
@@ -14,7 +21,6 @@
   }
 
   function ParseStore(appId, apiKey, className, key) {
-
     var self = this;
     self.appId = appId;
     self.className = className;
@@ -29,13 +35,9 @@
       self.key = "objectId";
       self.useParseIds = true;
     }
-
   }
 
   ParseStore.prototype = {
-
-    // todo: avoid preflight by putting parse
-    // credentials inside data object
     _ajax: function(options) {
       var self = this;
       options = options || {};
@@ -49,7 +51,7 @@
         xhr.open(method, url + id + params);
         xhr.setRequestHeader("X-Parse-Application-Id", self.appId);
         xhr.setRequestHeader("X-Parse-REST-API-Key", self.apiKey);
-        xhr.setRequestHeader("Content-Type", "text/plain");  // avoid pre-flight.
+        xhr.setRequestHeader("Content-Type", "text/plain");
         xhr.onload = function() {
           if (xhr.status >= 200 && xhr.status < 300) {
             resolve(JSON.parse(xhr.responseText));
@@ -58,7 +60,7 @@
           }
         };
         xhr.onerror = function() {
-          reject(Error("Network Error"));
+          reject(new NetworkError());
         };
         xhr.send(data);
       });
@@ -134,7 +136,11 @@
      */
     set: function (newObject) {
       var self = this;
-      // gcheck if item exists
+      // check if item exists
+        // check if the object has a key.
+      if (!newObject[self.key]) {
+        return Promise.reject(new Error("The object has to have a key."));
+      }
       return self._get(newObject[self.key])
         .then(function(oldObject){
           if (oldObject) {
@@ -146,7 +152,7 @@
           }
         });
     },
-    // Needs to be changed to not do partial updates
+    // parse does partial updates, we don't so work around this.
     _update: function (oldObject, newObject) {
       var self = this;
       // get diff
