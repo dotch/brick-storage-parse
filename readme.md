@@ -34,10 +34,6 @@ Attribute     | Options     | Default      | Description
 `keyname`     | *string*    | objectId     | The unique key for all objects.
 
 
-appid="Jex2pgGOUnZQHiSJOvbqUDoKO0qmJO948Rtcu4oy"
-                     classname="item"
-                     restapikey="tI5To9viL2ygoURZFN7uTnh439XXqkSRk0xFRfLH"
-                     key="k">
 ## Methods
 
 Method            | Returns a promise for  | Description
