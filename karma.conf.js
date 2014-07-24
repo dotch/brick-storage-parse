@@ -23,7 +23,7 @@ module.exports = function(config){
       'karma-firefox-launcher',
       'karma-mocha',
       'karma-chai',
-      'karma-chai-plugins',
+      'karma-chai-plugins'
     ],
   });
 };
