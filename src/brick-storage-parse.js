@@ -15,8 +15,8 @@
   BrickStorageParseElementPrototype.insert = function (object) {
     return this.storage.insert(object);
   };
-  BrickStorageParseElementPrototype.set = function (key, object) {
-    return this.storage.set(key, object);
+  BrickStorageParseElementPrototype.set = function (object) {
+    return this.storage.set(object);
   };
   BrickStorageParseElementPrototype.setMany = function (objects) {
     return this.storage.setMany(objects);

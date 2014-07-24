@@ -59,7 +59,8 @@
             reject(Error(xhr.statusText));
           }
         };
-        xhr.onerror = function() {
+        xhr.onerror = function(e) {
+          e.preventDefault();
           reject(new NetworkError());
         };
         xhr.send(data);
